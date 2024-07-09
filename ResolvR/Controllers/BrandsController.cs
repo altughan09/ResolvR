@@ -1,5 +1,12 @@
-using Microsoft.AspNetCore.Http;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ResolvR.Application.Brands.Commands.CreateBrand;
+using ResolvR.Application.Brands.Commands.DeleteBrand;
+using ResolvR.Application.Brands.Commands.UpdateBrand;
+using ResolvR.Application.Brands.Dtos;
+using ResolvR.Application.Brands.Queries.GetAllBrands;
+using ResolvR.Application.Brands.Queries.GetBrandById;
+using ResolvR.Domain.Shared;
 
 namespace ResolvR.Controllers
 {
@@ -7,36 +14,100 @@ namespace ResolvR.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        // GET: api/<BrandsController>
+        private readonly IMediator _mediator;
+
+        public BrandsController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        /// <summary>
+        /// Retrieves all brands.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A list of all brands.</returns>
         [HttpGet]
-        public IEnumerable<string> Get()
+        [ProducesResponseType(typeof(IEnumerable<BrandDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            return new string[] { "value1", "value2" };
+            var brands = await _mediator.Send(new GetAllBrandsQuery(), cancellationToken);
+            return Ok(brands);
         }
 
-        // GET api/<BrandsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        /// <summary>
+        /// Retrieves a brand by its identifier.
+        /// </summary>
+        /// <param name="id">The brand identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The brand if found, otherwise a not found response.</returns>
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(BrandDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error),StatusCodes.Status404NotFound)]     
+        public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
         {
-            return "value";
+            var brand = await _mediator.Send(new GetBrandByIdQuery(id), cancellationToken);
+
+            return brand.IsSuccess
+                ? Ok(brand.Value)
+                : NotFound(brand.Error);
         }
 
-        // POST api/<BrandsController>
+        /// <summary>
+        /// Creates a new brand based on the specified request.
+        /// </summary>
+        /// <param name="command">The create brand command request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The identifier of the newly created brand.</returns>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Error),StatusCodes.Status400BadRequest)]     
+        public async Task<IActionResult> Post([FromBody] CreateBrandCommand command,
+            CancellationToken cancellationToken)
         {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? CreatedAtAction(nameof(Get), new { id = result.Value }, result.Value)
+                : BadRequest(result.Error);
         }
 
-        // PUT api/<BrandsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <summary>
+        /// Updates an existing brand based on the specified request.
+        /// </summary>
+        /// <param name="id">The brand identifier.</param>
+        /// <param name="command">The update brand command request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>No content if successful, otherwise a bad request response.</returns>
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(Error),StatusCodes.Status400BadRequest)]        
+        public async Task<IActionResult> Put(Guid id, [FromBody] UpdateBrandCommand command,
+            CancellationToken cancellationToken)
         {
+            command.Id = id;
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return result.IsSuccess
+                ? NoContent()
+                : BadRequest(result.Error);
         }
 
-        // DELETE api/<BrandsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        /// <summary>
+        /// Deletes a brand by its identifier.
+        /// </summary>
+        /// <param name="id">The brand identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>No content if successful, otherwise a bad request response.</returns>
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(Error),StatusCodes.Status400BadRequest)]        
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
+            var result = await _mediator.Send(new DeleteBrandCommand(id), cancellationToken);
+
+            return result.IsSuccess
+                ? NoContent()
+                : BadRequest(result.Error);
         }
     }
 }
