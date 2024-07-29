@@ -6,7 +6,7 @@ namespace ResolvR.Domain.Entities;
 
 public class Branch : Entity<Guid>
 {
-    private Branch(Guid id, string? name, string? email, string? phoneNumber, Address address, Guid brandId)
+    public Branch(Guid id, string? name, string? email, string? phoneNumber, Address address, Guid brandId)
         : base(id)
     {
         Name = name;
@@ -19,11 +19,6 @@ public class Branch : Entity<Guid>
     
     private Branch()
     {
-    }
-
-    public static Result<Branch> Create(string? name, string? email, string? phoneNumber, Address address, Guid brandId)
-    {
-        return new Branch(Guid.NewGuid(), name, email, phoneNumber, address, brandId);
     }
     
     public string? Name { get; private set; }

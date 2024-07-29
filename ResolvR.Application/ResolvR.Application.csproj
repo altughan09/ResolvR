@@ -17,4 +17,11 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Branches\Commands\DeleteBranch\" />
+      <Folder Include="Branches\Commands\UpdateBranch\" />
+      <Folder Include="Branches\Dtos\" />
+      <Folder Include="Branches\Queries\" />
+    </ItemGroup>
+
 </Project>

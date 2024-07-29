@@ -12,6 +12,7 @@ namespace ResolvR.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class BrandsController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -13,9 +13,12 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         BrandRepository = new BrandRepository(_context);
+        BranchRepository = new BranchRepository(_context);
     }
     
     public IBrandRepository BrandRepository { get; }
+    public IBranchRepository BranchRepository { get; }
+    
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _context.SaveChangesAsync(cancellationToken);

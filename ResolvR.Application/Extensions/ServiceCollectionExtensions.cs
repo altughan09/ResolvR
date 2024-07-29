@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using ResolvR.Application.Abstractions;
+using ResolvR.Application.User;
 
 namespace ResolvR.Application.Extensions;
 
@@ -16,5 +18,8 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(applicationAssembly);
         services.AddValidatorsFromAssembly(applicationAssembly)
             .AddFluentValidationAutoValidation();
+
+        services.AddScoped<IUserContext, UserContext>();
+        services.AddHttpContextAccessor();
     }
 }

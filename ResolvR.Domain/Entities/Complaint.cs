@@ -6,11 +6,12 @@ namespace ResolvR.Domain.Entities;
 
 public class Complaint : Entity<Guid>
 {
-    private Complaint(string title, string description, Guid branchId)
+    private Complaint(string title, string description, Guid branchId, string creatorId)
     {
         Title = title;
         Description = description;
         BranchId = branchId;
+        CreatorId = creatorId;
         CreatedAt = DateTime.UtcNow;
     }
 
@@ -18,7 +19,7 @@ public class Complaint : Entity<Guid>
     {
     }
     
-    public static Result<Complaint> Create(string title, string description, Guid branchId)
+    public static Result<Complaint> Create(string title, string description, Guid branchId, string creatorId)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -30,7 +31,7 @@ public class Complaint : Entity<Guid>
             return Result.Failure<Complaint>(DomainErrors.Complaint.DescriptionNullOrEmpty);
         }
         
-        return new Complaint(title, description, branchId);
+        return new Complaint(title, description, branchId, creatorId);
     }
     
     public void SetBranch(Guid branchId)
@@ -56,4 +57,6 @@ public class Complaint : Entity<Guid>
     public DateTime? UpdatedAt { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
     public Guid BranchId { get; private set; }
+    public string CreatorId { get; private set; } = default!;
+    public User Creator { get; private set; } = default!;
 }

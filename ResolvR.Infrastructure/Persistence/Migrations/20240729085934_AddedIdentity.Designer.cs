@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResolvR.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using ResolvR.Infrastructure.Persistence;
 namespace ResolvR.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240729085934_AddedIdentity")]
+    partial class AddedIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,8 +219,8 @@ namespace ResolvR.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("48680ca1-135b-4271-9772-f9a8085804bd"),
-                            CreatedAt = new DateTime(2024, 7, 29, 11, 35, 10, 315, DateTimeKind.Utc).AddTicks(4160),
+                            Id = new Guid("a8d83044-31ad-4485-920b-5ad338185093"),
+                            CreatedAt = new DateTime(2024, 7, 29, 8, 59, 33, 862, DateTimeKind.Utc).AddTicks(4810),
                             Description = "Tradycyjny, działający od lat sieciowy fast food znany z burgerów i frytek.",
                             LogoUrl = "https://cdn.mcdonalds.pl/public/build/images/header/logo3.19d7d61fd29210afe458d0de4d0a7ca6.svg",
                             Name = "McDonald's",
@@ -236,10 +239,6 @@ namespace ResolvR.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
-
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -265,8 +264,6 @@ namespace ResolvR.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
-
-                    b.HasIndex("CreatorId");
 
                     b.ToTable("Complaints");
                 });
@@ -419,14 +416,6 @@ namespace ResolvR.Infrastructure.Persistence.Migrations
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("ResolvR.Domain.Entities.User", "Creator")
-                        .WithMany("OwnedComplaints")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("ResolvR.Domain.Entities.Branch", b =>
@@ -437,11 +426,6 @@ namespace ResolvR.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("ResolvR.Domain.Entities.Brand", b =>
                 {
                     b.Navigation("Branches");
-                });
-
-            modelBuilder.Entity("ResolvR.Domain.Entities.User", b =>
-                {
-                    b.Navigation("OwnedComplaints");
                 });
 #pragma warning restore 612, 618
         }
